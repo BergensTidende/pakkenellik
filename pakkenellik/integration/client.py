@@ -2,11 +2,17 @@ import io
 import json
 import os
 import re
+import sys
 from typing import Dict, List, Optional, Union
 
 import requests
-from datawrapper import Datawrapper
 from requests.auth import HTTPBasicAuth
+
+# append the path of the
+# parent directory
+sys.path.append("..")
+
+from ..datawrapper import Datawrapper  # noqa: E402
 
 
 def read_integrations() -> Dict[str, Dict[str, str]]:

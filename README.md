@@ -34,8 +34,38 @@ This package is used by the [cookiecutter-bord4-analysis](https://github.com/Ber
 
 Inspiration for the makefile and potery-file is taken from Johannes Schmidt's series ["Setting up Python Projects"](https://johschmidt42.medium.com/setting-up-python-projects-part-i-408603868c08)
 
-### Requirements
 
+## Installation
+
+Requires Python 3.10 or later.
+
+```bash
+
+pip install pakkenellik
+
+```
+
+or using pipenv:
+
+```bash
+
+pipenv install pakkenellik
+
+```
+
+or using poetry:
+
+```bash
+poetry add pakkenellik
+```
+
+## Usage
+
+There are a heap of functions for you to use. Enjoy.
+
+## Local development
+
+### Requirements
 ---
 
 - pyenv - manage python versions
