@@ -12,7 +12,7 @@ from requests.auth import HTTPBasicAuth
 # parent directory
 sys.path.append("..")
 
-from ..datawrapper import Datawrapper  # noqa: E402
+from ..datawrapper.client import Datawrapper  # type: ignore [attr-defined] # noqa: E402
 
 
 def read_integrations() -> Dict[str, Dict[str, str]]:
