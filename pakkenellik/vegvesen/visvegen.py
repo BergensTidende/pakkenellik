@@ -42,15 +42,13 @@ def split_road_ref(roadref: str) -> Optional[List[str]]:
 
     roadparts = roadref.split(" m")
 
-    # Split roadref into start and stop point
-    if len(roadparts) == 2:
-        meterparts = roadparts[1].split("-")
-        return [
-            f"{format_road_ref(roadparts[0])}m{meterparts[0]}",
-            f"{format_road_ref(roadparts[0])}m{meterparts[1]}",
-        ]
-    else:
+    if len(roadparts) != 2:
         return None
+    meterparts = roadparts[1].split("-")
+    return [
+        f"{format_road_ref(roadparts[0])}m{meterparts[0]}",
+        f"{format_road_ref(roadparts[0])}m{meterparts[1]}",
+    ]
 
 
 def get_road_info(roadref: str) -> Dict[str, Any]:  # type: ignore
@@ -65,7 +63,7 @@ def get_road_info(roadref: str) -> Dict[str, Any]:  # type: ignore
     """
 
     r = requests.get(
-        "https://nvdbapiles-v3.atlas.vegvesen.no/veg?vegsystemreferanse=" + roadref
+        f"https://nvdbapiles-v3.atlas.vegvesen.no/veg?vegsystemreferanse={roadref}"
     )
 
     return r.json()

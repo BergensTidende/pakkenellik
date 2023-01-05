@@ -66,22 +66,18 @@ def get_request_verb_and_url(integration_id: str) -> List[Union[str, bytes]]:
     """
     integrations = read_integrations()
 
-    base_url = os.getenv("MM_API_BASE_URL")
-
-    if not base_url:
+    if base_url := os.getenv("MM_API_BASE_URL"):
+        return (
+            [
+                "PUT",
+                f'{base_url}/{integrations[integration_id]["external_id"]}',
+            ]
+            if integration_id in integrations
+            and "external_id" in integrations[integration_id]
+            else ["POST", base_url]
+        )
+    else:
         raise Exception("MM_API_BASE_URL is not set")
-
-    if integration_id in integrations and "external_id" in integrations[integration_id]:
-        return [
-            "PUT",
-            "%s/%s"
-            % (
-                base_url,
-                integrations[integration_id]["external_id"],
-            ),
-        ]
-
-    return ["POST", base_url]
 
 
 def get_mm_data(integration_id: str) -> Union[Dict[str, str], None]:
@@ -115,12 +111,14 @@ def get_integration_id(search_key: str, search_value: str) -> Union[str, None]:
     """
     integrations = read_integrations()
 
-    for key, val in integrations.items():
-        if search_key in val:
-            if val[search_key] == search_value:
-                return key
-
-    return None
+    return next(
+        (
+            key
+            for key, val in integrations.items()
+            if search_key in val and val[search_key] == search_value
+        ),
+        None,
+    )
 
 
 def save_integration_meta(
@@ -157,7 +155,7 @@ def save_integration_meta(
         with io.open("integrations.json", "w") as json_file:
             json_file.write(json.dumps(integrations))
     except Exception as ex:
-        raise Exception("Could not write file, due to: %s" % ex)
+        raise Exception(f"Could not write file, due to: {ex}") from ex
 
     return True
 
@@ -213,7 +211,7 @@ def create_integration(
     )
 
     if not (200 <= response.status_code <= 201):
-        raise Exception("Unexpected status code: %s" % response.status_code)
+        raise Exception(f"Unexpected status code: {response.status_code}")
 
     # If this was just an update, there's nothing left for us to do
     # and the API won't give us any interesting information anyway.
@@ -316,17 +314,11 @@ def get_or_create_chart(  # type: ignore[no-any-unimported]
     if key in integrations:
         chart_id = integrations[key]["chart_id"]
         print(f"Chart and integration exists with DW id: {chart_id}")
+    elif copy_from:
+        chart_id = dw.copy_chart(copy_from)
+
     else:
-
-        if copy_from:
-            chart_id = dw.copy_chart(copy_from)
-
-        else:
-            chart = dw.create_chart(
-                title=title, chart_type=chart_type, folder_id=folder_id
-            )
-            chart_id = chart["id"]
-            print(
-                f"Chart and integration does not exist. Creating with DW id: {chart_id}"
-            )
+        chart = dw.create_chart(title=title, chart_type=chart_type, folder_id=folder_id)
+        chart_id = chart["id"]
+        print(f"Chart and integration does not exist. Creating with DW id: {chart_id}")
     return chart_id

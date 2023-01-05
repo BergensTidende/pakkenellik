@@ -22,11 +22,11 @@ PYTHON_INTERPRETER = python
 ##@ Formatting
 .PHONY: format-black
 format-black: ## black (code formatter)
-	@black pakkenellik
+	@poetry run black pakkenellik
 
 .PHONY: format-isort
 format-isort: ## isort (import formatter)
-	@isort pakkenellik
+	@poetry run isort pakkenellik
 
 .PHONY: format
 format: format-black format-isort ## run all formatters
@@ -34,22 +34,50 @@ format: format-black format-isort ## run all formatters
 ##@ Linting
 .PHONY: lint-black
 lint-black: ## black in linting mode
-	@black pakkenellik --check
+	@poetry run black pakkenellik --check
 
 .PHONY: lint-isort
 lint-isort: ## isort in linting mode
-	@isort pakkenellik --check
+	@poetry run isort pakkenellik --check
 
 .PHONY: lint-flake8
 lint-flake8: ## flake8 (linter)
-	@flake8 pakkenellik
+	@poetry run flake8 pakkenellik
 
 .PHONY: lint-mypy
 lint-mypy: ## mypy (static-type checker)
-	@mypy --config-file pyproject.toml pakkenellik
+	@poetry run mypy --config-file pyproject.toml pakkenellik
 
 .PHONY: lint-mypy-report
 lint-mypy-report: ## run mypy & create report
-	@mypy --config-file pyproject.toml pakkenellik --html-report ./mypy_html
+	@poetry run mypy --config-file pyproject.toml pakkenellik --html-report ./mypy_html
 
 lint: lint-black lint-isort lint-flake8 lint-mypy ## run all linters
+
+##@ Releases
+.PHONY: bump-patch
+bump-patch: ## bump version patch
+	@poetry run bump2version patch  --allow-dirty --verbose
+	@poetry build
+	@git add .
+	@git commit -m "updating package"
+	@git push --tags
+	@git push
+
+.PHONY: bump-minor
+bump-minor: ## bump version minor
+	@poetry run bump2version minor  --allow-dirty --verbose
+	@poetry build
+	@git add .
+	@git commit -m "updating package"
+	@git push --tags
+	@git push
+
+.PHONY: bump-major
+bump-major:  ## bump version major
+	@poetry run bump2version major  --allow-dirty --verbose
+	@poetry build
+	@git add .
+	@git commit -m "updating package"
+	@git push --tags
+	@git push
