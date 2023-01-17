@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pakkenellik"
-version = "0.1.5"
+version = "0.1.6"
 description = "Swiss army knife for Bord4's data anlysis"
 authors = ["Lasse Lambrechts <lasse.lambrechts@bt.no>"]
 readme = "README.md"
