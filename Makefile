@@ -81,3 +81,7 @@ bump-major:  ## bump version major
 	@git commit -m "updating package"
 	@git push --tags
 	@git push
+
+.PHONY: release
+release:  ## release package to pypi
+	@poetry build & poetry publish
