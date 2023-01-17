@@ -7,24 +7,31 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-boto3 = "^1.26.39"
-geopandas = "^0.12.2"
+boto3 = { version = "^1.26.39", optional = true }
+geopandas = { version = "^0.12.2", optional = true }
+gspread = { version = "^5.7.2", optional = true }
+gspread-dataframe = { version = "^3.3.0", optional = true }
+gspread-formatting = { version = "^1.1.2", optional = true }
 pandas = "^1.5.2"
 plotly = "^5.11.0"
 pyjstat = "^2.3.0"
 python-dotenv = "^0.21.0"
 requests = "^2.28.1"
-gspread = "^5.7.2"
-gspread-dataframe = "^3.3.0"
-gspread-formatting = "^1.1.2"
-bump2version = "^1.0.1"
 
-[tool.poetry.group.lint.dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
 isort = "^5.11.4"
 flake8 = "^6.0.0"
 mypy = "^0.991"
 types-requests = "^2.28.11.7"
+bump2version = "^1.0.1"
+
+[tool.poetry.extras]
+boto3 = ["s3"]
+geopandas = ["nvdb", "gis"]
+gspread = ["gspread"]
+gspread-dataframe = ["gspread"]
+gspread-formatting = ["gspread"]
 
 [tool.isort]
 profile = "black"
