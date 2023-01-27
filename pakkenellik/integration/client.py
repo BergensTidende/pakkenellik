@@ -77,7 +77,7 @@ def get_request_verb_and_url(integration_id: str) -> List[Union[str, bytes]]:
             else ["POST", base_url]
         )
     else:
-        raise Exception("MM_API_BASE_URL is not set")
+        raise ValueError("MM_API_BASE_URL is not set")
 
 
 def get_mm_data(integration_id: str) -> Union[Dict[str, str], None]:
@@ -155,7 +155,7 @@ def save_integration_meta(
         with io.open("integrations.json", "w") as json_file:
             json_file.write(json.dumps(integrations))
     except Exception as ex:
-        raise Exception(f"Could not write file, due to: {ex}") from ex
+        raise ValueError(f"Could not write file, due to: {ex}") from ex
 
     return True
 
@@ -180,7 +180,7 @@ def create_integration(
     """
 
     if os.getenv("INTEGRATIONS_ENABLED", "False") == "False":
-        raise Exception(
+        raise ValueError(
             """Integrations disabled in env file.
             Set INTEGRATIONS_ENABLED=True and restart Jupyter
             """
@@ -192,7 +192,7 @@ def create_integration(
     password = os.getenv("MM_API_PROD_PASSWORD")
 
     if not username or not password:
-        raise Exception("Missing username or password")
+        raise ValueError("Missing username or password")
 
     response = requests.request(
         *get_request_verb_and_url(integration_id),
@@ -211,7 +211,7 @@ def create_integration(
     )
 
     if not (200 <= response.status_code <= 201):
-        raise Exception(f"Unexpected status code: {response.status_code}")
+        raise ValueError(f"Unexpected status code: {response.status_code}")
 
     # If this was just an update, there's nothing left for us to do
     # and the API won't give us any interesting information anyway.
@@ -220,7 +220,7 @@ def create_integration(
 
     result = response.json()["body"]
     if not result["id"] or not result["url"]:
-        raise Exception("Did not receive ID and URL from Multimedia API")
+        raise ValueError("Did not receive ID and URL from Multimedia API")
 
     external_id = result["id"]
     # The URLs returned by the API will be HTTP, which causes problems in
@@ -255,7 +255,7 @@ def create_dw_integration(  # type: ignore[no-any-unimported]
     chart_props = dw.chart_properties(chart_id)
 
     if not chart_props:
-        raise Exception("Did not receive chart props code from Datawrapper API")
+        raise ValueError("Did not receive chart props code from Datawrapper API")
 
     title = chart_props["title"] or ""
 
@@ -270,14 +270,14 @@ def create_dw_integration(  # type: ignore[no-any-unimported]
         ]
         iframe_code = iframe_code.replace('height="undefined"', 'height="400"')
     except TypeError:
-        raise Exception("Did not receive iframe code from Datawrapper API")
+        raise ValueError("Did not receive iframe code from Datawrapper API")
 
     if iframe_code:
         created = create_integration(
             integration_id, title, byline, iframe_code, {"chart_id": chart_id}
         )
         if not created:
-            raise Exception("Could not create integration")
+            raise ValueError("Could not create integration")
 
     return True
 
