@@ -4,7 +4,7 @@ from typing import List
 
 import pandas as pd
 
-valid_filename_chars = "_ %s%s" % (string.ascii_letters, string.digits)
+valid_filename_chars = f"_ {string.ascii_letters}{string.digits}"
 char_limit = 255
 
 
@@ -41,9 +41,7 @@ def clean_column_header(column_header: str, whitelist: str, replace: List[str]) 
 
 
 def clean_column_headers(  # type: ignore[no-any-unimported]
-    _df: pd.DataFrame,
-    whitelist: str = valid_filename_chars,
-    replace: List[str] = [" ", "-"],
+    _df: pd.DataFrame, whitelist: str = valid_filename_chars, replace: List[str] = None
 ) -> pd.DataFrame:
     """Makes column headers usable in pandas
 
@@ -57,5 +55,7 @@ def clean_column_headers(  # type: ignore[no-any-unimported]
     Returns:
         Dataframe: A dataframe with cleaned column headers
     """
+    if replace is None:
+        replace = [" ", "-"]
     _df.columns = [clean_column_header(c, whitelist, replace) for c in _df.columns]
     return _df

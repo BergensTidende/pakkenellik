@@ -30,7 +30,7 @@ bump2version = "^1.0.1"
 s3 = ["boto3"]
 nvdb = ["geopandas"]
 gis = ["geopandas"]
-gspead = ["gspread", "gspread-dataframe", "gspread-formatting"]
+gspread = ["gspread", "gspread-dataframe", "gspread-formatting"]
 ssb = ["pyjstat"]
 
 [tool.isort]
