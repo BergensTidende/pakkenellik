@@ -12,7 +12,7 @@ geopandas = { version = "^0.12.2", optional = true }
 gspread = { version = "^5.7.2", optional = true }
 gspread-dataframe = { version = "^3.3.0", optional = true }
 gspread-formatting = { version = "^1.1.2", optional = true }
-pandas = "^1.5.2"
+pandas = "^2.1.2"
 plotly = "^5.11.0"
 pyjstat = { version = "^2.3.0", optional = true }
 python-dotenv = "^0.21.0"
