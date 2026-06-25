@@ -1,6 +1,6 @@
 [project]
 name = "pakkenellik"
-version = "0.2.0"
+version = "0.2.1"
 description = "Swiss army knife for Bord4's data analysis"
 authors = [
     { name = "Lasse Lambrechts", email = "lasse.lambrechts@bt.no" },
