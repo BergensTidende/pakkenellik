@@ -44,9 +44,9 @@ gspread = [
     "gspread-dataframe>=3.3.0",
     "gspread-formatting>=1.1.2",
 ]
-ssb = ["pyjstat>=2.3.0"]
+ssb = []
 viz = ["matplotlib>=3.6.0"]
-datawrapper = ["ipython>=8.0.0"]
+datawrapper = ["datawrapper>=2.0.17"]
 
 [dependency-groups]
 dev = [

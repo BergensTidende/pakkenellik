@@ -1,15 +1,37 @@
 # Helper functions for pyplot
 # Found here: https://github.com/agude/Jupyter-Notebook-Template-Library/
 
-from typing import Callable, Dict, Optional, Union
+from typing import (
+    Callable,
+    Dict,
+    Optional,
+    Protocol,
+    Sequence,
+    SupportsFloat,
+    Union,
+    cast,
+    runtime_checkable,
+)
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.artist import Artist
+from matplotlib.typing import ColorType
 
 # We should be able to just set rcParams, expect Jupyter has a bug:
 # https://github.com/jupyter/notebook/issues/3385
 #
 # So we have to call this function every time we want to plot.
+
+
+@runtime_checkable
+class _HasFaceColor(Protocol):
+    def get_facecolor(self) -> Sequence[ColorType]: ...
+
+
+@runtime_checkable
+class _HasColor(Protocol):
+    def get_color(self) -> ColorType: ...
 
 
 def setup_plot(  # type: ignore[no-any-unimported]
@@ -55,9 +77,12 @@ def setup_plot(  # type: ignore[no-any-unimported]
 
     # Make the plol
     fig, ax = plt.subplots()
-    ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:
+        ax.set_ylabel(ylabel)
 
     # Make the title and label area opaque instead of transparent
     fig.patch.set_facecolor(ax.get_facecolor())
@@ -86,20 +111,25 @@ def draw_left_legend(  # type: ignore[no-any-unimported]
     Returns: None
 
     """
-    ax.get_legend().remove()
+    legend = ax.get_legend()
+    if legend is not None:
+        legend.remove()
+
     for line in ax.lines:
-        label: str = line.get_label()
+        label = str(line.get_label())
         color = line.get_color()
 
-        y = line.get_ydata()[-1]
-        x = line.get_xdata()[-1]
+        ydata = cast(Sequence[SupportsFloat], line.get_ydata())
+        xdata = cast(Sequence[SupportsFloat], line.get_xdata())
+        y = float(ydata[-1])
+        x = float(xdata[-1])
 
         nudge_y: Union[int, float] = 0
         if nudges is not None:
             nudge_y = nudges.get(label, 0)
 
         ax.annotate(
-            s=label,
+            text=label,
             xy=(x, y),
             xytext=(10, 0 + nudge_y),
             textcoords="offset points",
@@ -172,16 +202,19 @@ def draw_colored_legend(ax: plt.Axes) -> None:  # type: ignore[no-any-unimported
     # that the text is in the right place when we turn off the line/point.
     legend = ax.legend(handlelength=0, handletextpad=0)
 
-    handles = legend.legendHandles
+    handles = legend.legend_handles
     texts = legend.get_texts()
     for handle, text in zip(handles, texts):
+        if not isinstance(handle, Artist):
+            continue
+
         # Change the color of the text to match the line or points
-        try:
-            # Points and some other objects have this
+        if isinstance(handle, _HasFaceColor):
             color = handle.get_facecolor()[0]
-        except AttributeError:
-            # Lines have this
+        elif isinstance(handle, _HasColor):
             color = handle.get_color()
+        else:
+            continue
 
         text.set_color(color)
 
@@ -190,7 +223,7 @@ def draw_colored_legend(ax: plt.Axes) -> None:  # type: ignore[no-any-unimported
 
 
 def draw_bands(  # type: ignore[no-any-unimported]
-    ax: plt.Axes, color: Optional[plt.Color] = "0.95", alpha: Optional[float] = 1.0
+    ax: plt.Axes, color: Optional[ColorType] = "0.95", alpha: Optional[float] = 1.0
 ) -> None:
     """Add grey bands between x-axis ticks.
 

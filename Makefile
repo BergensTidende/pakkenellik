@@ -54,8 +54,12 @@ test: ## run tests
 check: lint test ## run all checks
 
 ##@ Releases
+.PHONY: clean-dist
+clean-dist: ## remove built package artifacts
+	@rm -f dist/*.whl dist/*.tar.gz
+
 .PHONY: bump-patch
-bump-patch: ## bump version patch
+bump-patch: clean-dist ## bump version patch
 	@uv run bump2version patch --allow-dirty --verbose
 	@uv build
 	@git add .
@@ -64,7 +68,7 @@ bump-patch: ## bump version patch
 	@git push
 
 .PHONY: bump-minor
-bump-minor: ## bump version minor
+bump-minor: clean-dist ## bump version minor
 	@uv run bump2version minor --allow-dirty --verbose
 	@uv build
 	@git add .
@@ -73,7 +77,7 @@ bump-minor: ## bump version minor
 	@git push
 
 .PHONY: bump-major
-bump-major:  ## bump version major
+bump-major: clean-dist  ## bump version major
 	@uv run bump2version major --allow-dirty --verbose
 	@uv build
 	@git add .
@@ -82,6 +86,6 @@ bump-major:  ## bump version major
 	@git push
 
 .PHONY: release
-release: check ## release package to pypi
+release: check clean-dist ## release package to pypi
 	@uv build
 	@uv publish

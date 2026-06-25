@@ -152,14 +152,20 @@ make sync
     │   ├── __init__.py
     │   ├── clean_column_headers.py
     │   ├── datetime.py
-    │   ├── numbers.py
-    │   └── regions.py
+    │   └── numbers.py
     ├── integration
     │   ├── __init__.py
     │   └── client.py
     ├── log
     │   ├── __init__.py
     │   └── ansi.py
+    ├── regions
+    │   ├── __init__.py
+    │   └── norway.py
+    ├── ssb
+    │   ├── __init__.py
+    │   ├── population.py
+    │   └── rates.py
     ├── vegvesen
     │   ├── __init__.py
     │   └── visvegen.py

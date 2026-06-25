@@ -312,10 +312,20 @@ def get_or_create_chart(  # type: ignore[no-any-unimported]
         chart_id = integrations[key]["chart_id"]
         print(f"Chart and integration exists with DW id: {chart_id}")
     elif copy_from:
-        chart_id = dw.copy_chart(copy_from)
+        copied_chart = dw.copy_chart(copy_from)
+        copied_chart_id = (
+            copied_chart.get("id") if isinstance(copied_chart, dict) else copied_chart
+        )
+        if not isinstance(copied_chart_id, str):
+            raise ValueError("Did not receive chart id from Datawrapper API")
+        chart_id = copied_chart_id
 
     else:
         chart = dw.create_chart(title=title, chart_type=chart_type, folder_id=folder_id)
         chart_id = chart["id"]
         print(f"Chart and integration does not exist. Creating with DW id: {chart_id}")
+
+    if not isinstance(chart_id, str):
+        raise ValueError("Did not receive chart id from Datawrapper API")
+
     return chart_id
