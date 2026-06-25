@@ -2,17 +2,12 @@ import io
 import json
 import os
 import re
-import sys
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 
 import requests
 from requests.auth import HTTPBasicAuth
 
-# append the path of the
-# parent directory
-sys.path.append("..")
-
-from ..datawrapper.client import Datawrapper  # type: ignore [attr-defined] # noqa: E402
+from ..datawrapper.client import Datawrapper  # type: ignore [attr-defined]
 
 
 def read_integrations() -> Dict[str, Dict[str, str]]:
@@ -56,7 +51,7 @@ def exists_on_server(integration_id: str) -> bool:
     )
 
 
-def get_request_verb_and_url(integration_id: str) -> List[Union[str, bytes]]:
+def get_request_verb_and_url(integration_id: str) -> tuple[str, str]:
     """Checks if the integration should be updated or created
 
     integration_id (string): Integration id used
@@ -68,13 +63,13 @@ def get_request_verb_and_url(integration_id: str) -> List[Union[str, bytes]]:
 
     if base_url := os.getenv("MM_API_BASE_URL"):
         return (
-            [
+            (
                 "PUT",
-                f'{base_url}/{integrations[integration_id]["external_id"]}',
-            ]
+                f"{base_url}/{integrations[integration_id]['external_id']}",
+            )
             if integration_id in integrations
             and "external_id" in integrations[integration_id]
-            else ["POST", base_url]
+            else ("POST", base_url)
         )
     else:
         raise ValueError("MM_API_BASE_URL is not set")
@@ -165,7 +160,7 @@ def create_integration(
     title: str,
     author: str,
     body: str,
-    extra_meta: Dict[str, str] = {},
+    extra_meta: Optional[Dict[str, str]] = None,
 ) -> Union[Dict[str, str], None]:
     """Create a new integration in MM-tools
 
@@ -194,6 +189,8 @@ def create_integration(
     if not username or not password:
         raise ValueError("Missing username or password")
 
+    extra_meta = extra_meta or {}
+
     response = requests.request(
         *get_request_verb_and_url(integration_id),
         auth=HTTPBasicAuth(username, password),
@@ -208,6 +205,7 @@ def create_integration(
                 "body": body or "",
             }
         ),
+        timeout=30,
     )
 
     if not (200 <= response.status_code <= 201):
@@ -290,7 +288,6 @@ def get_or_create_chart(  # type: ignore[no-any-unimported]
     folder_id: Optional[int] = None,
     copy_from: Optional[str] = None,
 ) -> str:
-
     """
     Searches integrations.json for given key and if it exists, returns the chart_id.
     If not, it will create a new chart and return the id or create

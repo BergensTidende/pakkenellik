@@ -32,7 +32,7 @@ Pakkenellik is german and used in Bergen as a synonym for small packages one car
 
 This package is used by the [cookiecutter-bord4-analysis](https://github.com/BergensTidende/cookiecutter-bord4-analysis) project and [bord4-analysis-templates](https://github.com/BergensTidende/bord4-analysis-templates)
 
-Inspiration for the makefile and potery-file is taken from Johannes Schmidt's series ["Setting up Python Projects"](https://johschmidt42.medium.com/setting-up-python-projects-part-i-408603868c08)
+Inspiration for the makefile and project setup is taken from Johannes Schmidt's series ["Setting up Python Projects"](https://johschmidt42.medium.com/setting-up-python-projects-part-i-408603868c08)
 
 
 ## Installation
@@ -40,28 +40,60 @@ Inspiration for the makefile and potery-file is taken from Johannes Schmidt's se
 Requires Python 3.10 or later.
 
 ```bash
-
 pip install pakkenellik
-
 ```
 
 or using pipenv:
 
 ```bash
-
 pipenv install pakkenellik
-
 ```
 
-or using poetry:
+or using uv:
 
 ```bash
-poetry add pakkenellik
+uv add pakkenellik
+```
+
+Optional dependencies are split into extras:
+
+```bash
+uv add "pakkenellik[s3]"
+uv add "pakkenellik[gspread]"
+uv add "pakkenellik[nvdb]"
+uv add "pakkenellik[viz]"
+uv add "pakkenellik[datawrapper]"
 ```
 
 ## Usage
 
-There are a heap of functions for you to use. Enjoy.
+Clean dataframe column headers:
+
+```python
+import pandas as pd
+
+from pakkenellik.dataframe.clean_column_headers import clean_column_headers
+
+df = pd.DataFrame({"Første kolonne": [1]})
+df = clean_column_headers(df)
+```
+
+Format numbers for publishing:
+
+```python
+from pakkenellik.dataframe.numbers import format_number
+
+formatted = format_number(1234567.89)
+```
+
+Use common project paths:
+
+```python
+from pakkenellik.config import Config
+
+config = Config("/path/to/project")
+source_file = config.get_source_file("data.csv")
+```
 
 ## Local development
 
@@ -69,7 +101,7 @@ There are a heap of functions for you to use. Enjoy.
 ---
 
 - pyenv - manage python versions
-- poetry - manage python dependencies
+- uv - manage python dependencies and packaging
 
 To install on mac you can use homebrew:
 
@@ -78,22 +110,35 @@ brew upgrade
 brew install pyenv
 ```
 
-You can either install poetry with homebrew or the way described in the [documentation](https://python-poetry.org/docs/#installation)
+Install uv with homebrew or the way described in the [documentation](https://docs.astral.sh/uv/getting-started/installation/):
+
+```bash
+brew install uv
+```
+
+Install the project dependencies:
+
+```bash
+make sync
+```
 
 
 ### Makefile commands
 
 - `make lint`
-  - lint the code in the src folder with black, isort and flake8. Mypy will check for correct typing.
+  - lint the code with ruff. Mypy will check for correct typing.
 - `make format`
-  - format the code in the src folder with black and isort.
+  - format the code with ruff.
+- `make test`
+  - run tests with pytest.
+- `make check`
+  - run linting and tests.
 
 ### Structure
 
 ```
 .
 ├── .editorconfig
-├── .flake8
 ├── pyproject.toml
 ├── README.md
 └── pakkenellik
@@ -125,10 +170,8 @@ You can either install poetry with homebrew or the way described in the [documen
 
 - `.editorconfig`
   - Configuration file for editorconfig.
-- `.flake8`
-  - Configuration file for flake8.
 - `pyproject.toml`
-  - Configuration file for poetry. Mypy and isort is configured here.
+  - Project metadata and configuration for uv, ruff and mypy.
 - `README.md`
   - This file.
 - `pakkenellik`
@@ -151,8 +194,7 @@ You can either install poetry with homebrew or the way described in the [documen
 To install the package in your project run
 
 ```bash
-
-poetry add pakkenellik
+uv add pakkenellik
 ```
 
 ## Contributing

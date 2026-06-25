@@ -49,7 +49,7 @@ class Config(object):
         return self._config[property_name]
 
     def get_folder(self, folder_name: str) -> Optional[str]:
-        """ "
+        """
         Args:
             folder_name (str): the name of the folder to get
 
@@ -61,11 +61,7 @@ class Config(object):
 
         folder = self.folders.get(folder_name, None)
 
-        if folder is None:
-            return None
-
-        folder_path = os.path.join(self.project_root, folder)
-        return folder_path
+        return None if folder is None else os.path.join(self.project_root, folder)
 
     def get_url(self, url_name: str) -> Optional[str]:
         """Get a url from the config.

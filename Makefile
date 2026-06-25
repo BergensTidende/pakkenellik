@@ -20,45 +20,44 @@ PYTHON_INTERPRETER = python
 #################################################################################
 
 ##@ Formatting
-.PHONY: format-black
-format-black: ## black (code formatter)
-	@poetry run black pakkenellik
-
-.PHONY: format-isort
-format-isort: ## isort (import formatter)
-	@poetry run isort pakkenellik
+.PHONY: sync
+sync: ## install project dependencies
+	@uv sync --all-extras --dev
 
 .PHONY: format
-format: format-black format-isort ## run all formatters
+format: ## format code
+	@uv run ruff format pakkenellik tests
+	@uv run ruff check --select I --fix pakkenellik tests
 
 ##@ Linting
-.PHONY: lint-black
-lint-black: ## black in linting mode
-	@poetry run black pakkenellik --check
-
-.PHONY: lint-isort
-lint-isort: ## isort in linting mode
-	@poetry run isort pakkenellik --check
-
-.PHONY: lint-flake8
-lint-flake8: ## flake8 (linter)
-	@poetry run flake8 pakkenellik
+.PHONY: lint-ruff
+lint-ruff: ## ruff lint and format checks
+	@uv run ruff format --check pakkenellik tests
+	@uv run ruff check pakkenellik tests
 
 .PHONY: lint-mypy
 lint-mypy: ## mypy (static-type checker)
-	@poetry run mypy --config-file pyproject.toml pakkenellik
+	@uv run mypy --config-file pyproject.toml pakkenellik
 
 .PHONY: lint-mypy-report
 lint-mypy-report: ## run mypy & create report
-	@poetry run mypy --config-file pyproject.toml pakkenellik --html-report ./mypy_html
+	@uv run mypy --config-file pyproject.toml pakkenellik --html-report ./mypy_html
 
-lint: lint-black lint-isort lint-flake8 lint-mypy ## run all linters
+lint: lint-ruff lint-mypy ## run all linters
+
+##@ Tests
+.PHONY: test
+test: ## run tests
+	@uv run pytest
+
+.PHONY: check
+check: lint test ## run all checks
 
 ##@ Releases
 .PHONY: bump-patch
 bump-patch: ## bump version patch
-	@poetry run bump2version patch  --allow-dirty --verbose
-	@poetry build
+	@uv run bump2version patch --allow-dirty --verbose
+	@uv build
 	@git add .
 	@git commit -m "updating package"
 	@git push --tags
@@ -66,8 +65,8 @@ bump-patch: ## bump version patch
 
 .PHONY: bump-minor
 bump-minor: ## bump version minor
-	@poetry run bump2version minor  --allow-dirty --verbose
-	@poetry build
+	@uv run bump2version minor --allow-dirty --verbose
+	@uv build
 	@git add .
 	@git commit -m "updating package"
 	@git push --tags
@@ -75,8 +74,8 @@ bump-minor: ## bump version minor
 
 .PHONY: bump-major
 bump-major:  ## bump version major
-	@poetry run bump2version major  --allow-dirty --verbose
-	@poetry build
+	@uv run bump2version major --allow-dirty --verbose
+	@uv build
 	@git add .
 	@git commit -m "updating package"
 	@git push --tags
@@ -84,4 +83,5 @@ bump-major:  ## bump version major
 
 .PHONY: release
 release:  ## release package to pypi
-	@poetry build & poetry publish
+	@uv build
+	@uv publish

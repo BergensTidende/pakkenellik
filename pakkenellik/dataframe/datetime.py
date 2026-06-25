@@ -1,5 +1,5 @@
 """
-  Collection of utility functions to do with datetime for faster analysis
+Collection of utility functions to do with datetime for faster analysis
 """
 
 from typing import Optional
@@ -98,7 +98,7 @@ def add_week_number(  # type: ignore[no-any-unimported]
         dataframe: the dataframe with the week number added
     """
 
-    _df["week_number"] = _df[date_column].dt.week.fillna(0).astype("int")
+    _df["week_number"] = _df[date_column].dt.isocalendar().week.fillna(0).astype("int")
 
     return _df
 

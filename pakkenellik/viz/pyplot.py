@@ -229,7 +229,7 @@ def draw_bands(  # type: ignore[no-any-unimported]
         lefts.append(left)
         rights.append(right)
 
-    for (left, right) in zip(lefts, rights):
+    for left, right in zip(lefts, rights):
         ax.axvspan(left, right, color=color, alpha=alpha, zorder=-2)
 
     # Reset the x range so that we do not have a weird empty area on the right

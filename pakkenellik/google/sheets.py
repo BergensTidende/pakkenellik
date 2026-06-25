@@ -46,7 +46,6 @@ def open_worksheet(  # type: ignore [no-any-unimported]
     worksheet_number: int = 0,
     worksheet_name: Optional[str] = None,
 ) -> gspread.worksheet.Worksheet:
-
     """
     Open Google worksheet
 

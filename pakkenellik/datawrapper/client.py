@@ -44,6 +44,7 @@ class Datawrapper:
     _CHARTS_URL = _BASE_URL + "/v3/charts"
     _PUBLISH_URL = _BASE_URL + "/charts"
     _FOLDERS_URL = _BASE_URL + "/folders"
+    _REQUEST_TIMEOUT = 30
 
     _ACCESS_TOKEN = os.getenv("DATAWRAPPER_ACCESS_TOKEN")
 
@@ -57,6 +58,12 @@ class Datawrapper:
             [description], by default _ACCESS_TOKEN
         """
 
+        if not access_token:
+            raise ValueError(
+                "Missing Datawrapper access token. Set DATAWRAPPER_ACCESS_TOKEN "
+                "or pass access_token."
+            )
+
         self._access_token = access_token
         self._auth_header = {"Authorization": f"Bearer {access_token}"}
 
@@ -69,7 +76,9 @@ class Datawrapper:
             A dictionary containing your account information.
         """
         account_info_response = r.get(
-            url=self._BASE_URL + "/v3/me", headers=self._auth_header
+            url=self._BASE_URL + "/v3/me",
+            headers=self._auth_header,
+            timeout=self._REQUEST_TIMEOUT,
         )
         if account_info_response.status_code == 200:
             return account_info_response.json()
@@ -105,6 +114,7 @@ class Datawrapper:
             url=f"{self._CHARTS_URL}/{chart_id}/data",
             headers=_header,
             data=_data.encode("utf-8"),
+            timeout=self._REQUEST_TIMEOUT,
         )
 
     def refresh_data(self, chart_id: str) -> r.Response:
@@ -126,6 +136,7 @@ class Datawrapper:
         return r.post(
             url=f"{self._CHARTS_URL}/{chart_id}/data/refresh",
             headers=_header,
+            timeout=self._REQUEST_TIMEOUT,
         )
 
     def create_chart(
@@ -173,7 +184,10 @@ class Datawrapper:
             _data["metadata"] = metadata  # type: ignore
 
         new_chart_response = r.post(
-            url=self._CHARTS_URL, headers=_header, data=json.dumps(_data)
+            url=self._CHARTS_URL,
+            headers=_header,
+            data=json.dumps(_data),
+            timeout=self._REQUEST_TIMEOUT,
         )
 
         if (
@@ -191,7 +205,7 @@ class Datawrapper:
             chart_info = new_chart_response.json()
             print(f"New chart {chart_info['type']} created!")
         else:
-            print(
+            raise ValueError(
                 f"Chart could not be created, check your authorization credentials (access token){', and that the folder_id is valid (i.e exists, and your account has access to it)' if folder_id else ''}"  # noqa: E501
             )
 
@@ -240,6 +254,7 @@ class Datawrapper:
             url=self._CHARTS_URL + f"/{chart_id}",
             headers=_header,
             data=json.dumps(_data),
+            timeout=self._REQUEST_TIMEOUT,
         )
         if update_description_response.status_code == 200:
             print("Chart updated!")
@@ -262,6 +277,7 @@ class Datawrapper:
         publish_chart_response = r.post(
             url=f"{self._PUBLISH_URL}/{chart_id}/publish",
             headers=self._auth_header,
+            timeout=self._REQUEST_TIMEOUT,
         )
         if publish_chart_response.status_code <= 201:
             # print(f"Chart published at {publish_chart_info[]}")
@@ -299,6 +315,7 @@ class Datawrapper:
         chart_properties_response = r.get(
             url=self._CHARTS_URL + f"/{chart_id}",
             headers=self._auth_header,
+            timeout=self._REQUEST_TIMEOUT,
         )
         if chart_properties_response.status_code == 200:
             return chart_properties_response.json()
@@ -330,6 +347,7 @@ class Datawrapper:
             url=self._CHARTS_URL + f"/{chart_id}",
             headers=_header,
             data=json.dumps(_data),
+            timeout=self._REQUEST_TIMEOUT,
         )
         if update_properties_response.status_code == 200:
             print("Chart's metadata updated!")
@@ -394,6 +412,7 @@ class Datawrapper:
             url=self._CHARTS_URL + f"/{chart_id}",
             headers=_header,
             data=json.dumps(_query),
+            timeout=self._REQUEST_TIMEOUT,
         )
         if update_chart_response.status_code == 200:
             print(f"Chart with id {chart_id} updated!")
@@ -521,7 +540,10 @@ class Datawrapper:
         _header["accept"] = "*/*"
 
         export_chart_response = r.get(
-            url=_export_url, headers=_header, params=querystring  # type: ignore
+            url=_export_url,
+            headers=_header,
+            params=querystring,  # type: ignore
+            timeout=self._REQUEST_TIMEOUT,
         )
 
         if export_chart_response.status_code == 200:
@@ -551,6 +573,7 @@ class Datawrapper:
         get_folders_response = r.get(
             url=self._FOLDERS_URL,
             headers=self._auth_header,
+            timeout=self._REQUEST_TIMEOUT,
         )
 
         if get_folders_response.status_code == 200:
@@ -582,6 +605,7 @@ class Datawrapper:
             url=self._CHARTS_URL + f"/{chart_id}",
             headers=_header,
             data=json.dumps(_data),
+            timeout=self._REQUEST_TIMEOUT,
         )
 
         if move_chart_response.status_code == 200:
@@ -606,7 +630,9 @@ class Datawrapper:
         """
 
         delete_chart_response = r.delete(
-            url=self._CHARTS_URL + f"/{chart_id}", headers=self._auth_header
+            url=self._CHARTS_URL + f"/{chart_id}",
+            headers=self._auth_header,
+            timeout=self._REQUEST_TIMEOUT,
         )
         if delete_chart_response.content:
             return delete_chart_response.content
@@ -669,7 +695,12 @@ class Datawrapper:
         if limit:
             _query["limit"] = str(limit)
 
-        get_charts_response = r.get(url=_url, headers=_header, params=_query)
+        get_charts_response = r.get(
+            url=_url,
+            headers=_header,
+            params=_query,
+            timeout=self._REQUEST_TIMEOUT,
+        )
 
         if get_charts_response.status_code == 200:
             return get_charts_response.json()["list"]  # type: ignore

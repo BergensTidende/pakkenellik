@@ -13,6 +13,7 @@ from shapely.ops import linemerge, transform
 xy_vegref: TypeAlias = Dict[str, Union[float, int]]
 # Veginfo is a unsatable complex dict, so we just use Any
 veginfo: TypeAlias = Dict[str, Any]  # type: ignore
+REQUEST_TIMEOUT = 30
 
 
 def format_road_ref(roadref: str) -> str:
@@ -62,11 +63,13 @@ def get_road_info(roadref: str) -> Dict[str, Any]:  # type: ignore
         json: json with road info
     """
 
-    r = requests.get(
-        f"https://nvdbapiles-v3.atlas.vegvesen.no/veg?vegsystemreferanse={roadref}"
+    response = requests.get(
+        "https://nvdbapiles-v3.atlas.vegvesen.no/veg",
+        params={"vegsystemreferanse": roadref},
+        timeout=REQUEST_TIMEOUT,
     )
 
-    return r.json()
+    return response.json()
 
 
 def get_roads_info(roadrefs: str) -> Dict[str, Any]:  # type: ignore
@@ -79,12 +82,13 @@ def get_roads_info(roadrefs: str) -> Dict[str, Any]:  # type: ignore
     Returns:
         json: json with road infos
     """
-    r = requests.get(
-        "https://nvdbapiles-v3.atlas.vegvesen.no/veg/batch?vegsystemreferanser="
-        + roadrefs
+    response = requests.get(
+        "https://nvdbapiles-v3.atlas.vegvesen.no/veg/batch",
+        params={"vegsystemreferanser": roadrefs},
+        timeout=REQUEST_TIMEOUT,
     )
 
-    return r.json()
+    return response.json()
 
 
 def get_road_route(from_xy: xy_vegref, to_xy: xy_vegref) -> Optional[veginfo]:
@@ -109,6 +113,7 @@ def get_road_route(from_xy: xy_vegref, to_xy: xy_vegref) -> Optional[veginfo]:
     road_r = s.post(
         "http://visveginfo-static.opentns.org/RoadInfoService/GetRouteBetweenLocations",
         json=payload,
+        timeout=REQUEST_TIMEOUT,
     )
 
     s.close()

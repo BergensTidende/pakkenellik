@@ -85,7 +85,7 @@ def save_to_s3(
 
 def get_matching_s3_keys(
     bucket: str, prefix: Optional[str] = "", suffix: Optional[str] = ""
-) -> Generator:
+) -> Generator[str, None, None]:
     """
     Generate the keys in an S3 bucket.
 
@@ -93,6 +93,8 @@ def get_matching_s3_keys(
     :param prefix: Only fetch keys that start with this prefix (optional).
     :param suffix: Only fetch keys that end with this suffix (optional).
     """
+    prefix = prefix or ""
+    suffix = suffix or ""
     s3 = boto3.client("s3")
     kwargs = {"Bucket": bucket}
 
@@ -102,11 +104,10 @@ def get_matching_s3_keys(
         kwargs["Prefix"] = prefix
 
     while True:
-
         # The S3 API response is a large blob of metadata.
         # 'Contents' contains information about the listed objects.
         resp = s3.list_objects_v2(**kwargs)
-        for obj in resp["Contents"]:
+        for obj in resp.get("Contents", []):
             key = obj["Key"]
             if key.startswith(prefix) and key.endswith(suffix):
                 yield key

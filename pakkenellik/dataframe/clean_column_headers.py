@@ -1,6 +1,6 @@
 import string
 import unicodedata
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 
@@ -41,7 +41,9 @@ def clean_column_header(column_header: str, whitelist: str, replace: List[str]) 
 
 
 def clean_column_headers(  # type: ignore[no-any-unimported]
-    _df: pd.DataFrame, whitelist: str = valid_filename_chars, replace: List[str] = None
+    _df: pd.DataFrame,
+    whitelist: str = valid_filename_chars,
+    replace: Optional[List[str]] = None,
 ) -> pd.DataFrame:
     """Makes column headers usable in pandas
 

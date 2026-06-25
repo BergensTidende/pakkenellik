@@ -12,7 +12,6 @@ trim_trailing_whitespace = true
 indent_style = space
 
 [*.py]
-profile = black
 indent_size = 4
 
 [Makefile]
