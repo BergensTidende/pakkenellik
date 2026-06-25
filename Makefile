@@ -82,6 +82,6 @@ bump-major:  ## bump version major
 	@git push
 
 .PHONY: release
-release:  ## release package to pypi
+release: check ## release package to pypi
 	@uv build
 	@uv publish
